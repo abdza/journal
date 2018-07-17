@@ -1,0 +1,111 @@
+{% from 'macros.html' import topmenu,sidemenu,adminmenu with context %}
+<!doctype html>
+<html lang='en' dir='ltr'>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel='stylesheet' href='{{ app.url_for('static',filename='/css/bootstrap.min.css') }}'>
+		<link rel='stylesheet' href='{{ app.url_for('static',filename='/css/fontawesome-all.min.css') }}'>
+		<link rel='stylesheet' href='{{ app.url_for('static',filename='/plugins/jquery-ui-1.12.1/jquery-ui.min.css') }}'>
+		<link rel='stylesheet' href='{{ app.url_for('static',filename='/css/jquery.smartmenus.bootstrap-4.css') }}'>
+		{% block formcss %}{% endblock %}
+		<!-- Mobile Specific Metas -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<!-- Google Font -->
+		<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+		<link rel='stylesheet' href='{{ app.url_for('static',filename='/css/custom.css') }}'>
+		{% block headtitle %}
+		<title>{% if title %}{{ title }}{% else %}Sanic Engine{% endif %}</title>
+		{% endblock %}
+		{% block endhead %}
+		{% endblock %}
+	</head>
+{% block body %}
+<body>
+	<div class='wrapper'>
+	{% block bodyheader %}
+	<nav id="navbar" role="navigation" class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+		<a href="{{ app.url_for('pages.home') }}" class="navbar-brand">
+			<img src="{{ app.url_for('static',filename='images/logo.png') }}" alt="" class="mobile-logo">
+		</a>
+		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle sidebar">
+			<i class="fas fa-bars"></i>
+		</button>
+		<div class="collapse navbar-collapse" id="navcomponents">
+			<ul class="nav navbar-nav mr-auto">
+			</ul>
+		{% if request.session.user_id %}
+			<ul class="navbar-nav ml-auto ">
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" id="profilelink">
+						<span class="user-icon"><i class="fa fa-user-o"></i></span>
+						<span class="user-name">{{ curuser.name }}</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="profilelink">
+						<a class="dropdown-item" href="{{ app.url_for('users.profile') }}"><i class="fa fa-user-md" aria-hidden="true"></i> Profile</a>
+						<a class="dropdown-item" href="{{ app.url_for('users.logout') }}"><i class="fa fa-sign-out-alt" aria-hidden="true"></i> Log Out</a>
+					</div>
+				</li>
+			</ul>
+		{% else %}
+			<form method='post' class='form-inline my-2 my-lg-0' action='{{ app.url_for('users.login') }}'>
+				<input type='hidden' name='targeturl' value='{% if targeturl %}{{ targeturl }}{% else %}{{request.url}}{% endif %}'/>
+				<label for='username' class='sr-only'>Username</label>
+				<input class='form-control mr-sm-2' placeholder='Username' type='text' name='username' id='username'>
+				<label for='password' class='sr-only'>Password</label>
+				<input class='form-control mr-sm-2' placeholder='Password' type='password' name='password' id='password'>
+				<input class='btn my-2 my-sm-0' type='submit' value='Login'/>
+			</form>
+		{% endif %}
+		</div>
+	</nav>
+	{% endblock %}
+	{% block leftsidebar %}
+	<nav id='sidebar'>
+		<div class="sidebar-header">
+			<h3>{% if app.config.APP_TITLE %}{{ app.config.APP_TITLE }}{% else %}SanicEngine{% endif %}</h3>
+		</div>
+		<ul class="list-unstyled components">
+		{{ sidemenu() }}
+		{% if request.session.user_id and curuser.isadmin %}
+		{{ adminmenu() }}
+		{% endif %}
+		</ul>
+	</nav>
+	{% endblock %}
+
+
+	{% block mainblock %}
+		<main role='main' class='container'>
+		{% if request.session.flashmessage %}
+			<div class="alert alert-warning alert-dismissible fade show" role="alert">
+				{{ request.session.pop('flashmessage',None) }}
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+		{% endif %}
+		{% block content %}
+			<h1>Sanic Engine</h1>
+		{% endblock %}
+		</main>
+	{% endblock %}
+	{% block standardjs %}
+	<script src='{{ app.url_for('static', filename='/js/jquery-3.3.1.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/js/popper.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/js/bootstrap.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/plugins/jquery-ui-1.12.1/jquery-ui.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/plugins/jquery-ui-1.12.1/jquery.ui.touch-punch.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/js/jquery.smartmenus.min.js')}}'></script>
+	<script src='{{ app.url_for('static', filename='/js/jquery.smartmenus.bootstrap-4.min.js')}}'></script>
+	{% block js %}{% endblock %}
+	{% endblock %}
+	{% block endbody %}
+	{% endblock %}
+	<script src='{{ app.url_for('static', filename='/js/custom.js')}}'></script>
+	</div>
+</body>
+{% endblock %}
+</html>
